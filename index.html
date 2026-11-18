@@ -53,46 +53,58 @@
             transform: scale(1.02);
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
+        /* 모바일 가로 스크롤 방지 및 입력창 터치 시 자동 화면 확대(Zoom) 방지 */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+        @media (max-width: 639px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col text-[13px] sm:text-sm">
 
-    <!-- 상단 헤더 -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                <div class="flex items-center justify-between gap-2.5">
-                    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                        <div class="bg-red-600 p-2 rounded-xl shadow-inner flex items-center justify-center shrink-0">
-                            <i data-lucide="shield-alert" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+    <!-- 상단 헤더 (컴팩트 슬림형) -->
+    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-5 py-2 sm:py-2.5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="bg-red-600 p-1.5 rounded-lg shadow-inner flex items-center justify-center shrink-0">
+                            <i data-lucide="shield-alert" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
                         </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h1 class="text-base sm:text-xl font-bold tracking-tight truncate">비상 대피 및 안전 모니터링</h1>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-500/25 text-red-200 border border-red-500/40 shrink-0">
-                                    LIVE
-                                </span>
-                            </div>
-                            <p class="text-[11px] sm:text-xs text-slate-300 mt-0.5 truncate">부서별 인원 조회 및 실시간 안전 상태 응답</p>
+                        <div class="min-w-0 flex items-center gap-2">
+                            <h1 class="text-sm sm:text-base font-bold tracking-tight truncate">비상 대피 및 안전 모니터링</h1>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/25 text-red-200 border border-red-500/40 shrink-0">
+                                LIVE
+                            </span>
                         </div>
                     </div>
                 </div>
-                <!-- 모바일 2x2 균등 그리드 / 데스크톱 인라인 버튼 -->
-                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button onclick="openSheetModal()" class="inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold px-3 py-2.5 sm:py-2 rounded-xl transition shadow-sm">
-                        <i data-lucide="sheet" class="w-4 h-4 shrink-0"></i>
+                <!-- 액션 버튼 바 -->
+                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 w-full lg:w-auto">
+                    <button onclick="openSheetModal()" class="inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition shadow-2xs whitespace-nowrap">
+                        <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
                         <span>구글 시트 연동</span>
                     </button>
-                    <button onclick="openAddModal()" class="inline-flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-500 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold px-3 py-2.5 sm:py-2 rounded-xl transition shadow-sm">
-                        <i data-lucide="users-round" class="w-4 h-4 shrink-0"></i>
+                    <button onclick="openAddModal()" class="inline-flex items-center justify-center gap-1 bg-brand-600 hover:bg-brand-500 active:scale-[0.98] text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition shadow-2xs whitespace-nowrap">
+                        <i data-lucide="users-round" class="w-3.5 h-3.5 shrink-0"></i>
                         <span>협력사·내방객 추가</span>
                     </button>
-                    <button onclick="exportReportCSV()" class="inline-flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 active:scale-[0.98] text-white text-xs sm:text-sm font-medium px-3 py-2.5 sm:py-2 rounded-xl border border-slate-600 transition shadow-sm">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i>
+                    <button onclick="pushReportToGas()" id="header-gas-push-btn" class="hidden col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-1 bg-amber-600 hover:bg-amber-500 active:scale-[0.98] text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition shadow-2xs whitespace-nowrap">
+                        <i data-lucide="cloud-upload" class="w-3.5 h-3.5 shrink-0"></i>
+                        <span>시트 일괄기록</span>
+                    </button>
+                    <button onclick="exportReportCSV()" class="inline-flex items-center justify-center gap-1 bg-slate-700 hover:bg-slate-600 active:scale-[0.98] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-600 transition shadow-2xs whitespace-nowrap">
+                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 shrink-0"></i>
                         <span>결과 보고서</span>
                     </button>
-                    <button onclick="resetAllFilters()" class="inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 text-xs sm:text-sm font-medium px-3 py-2.5 sm:py-2 rounded-xl border border-slate-700 transition">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4 shrink-0"></i>
+                    <button onclick="resetAllFilters()" class="inline-flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-700 transition whitespace-nowrap">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 shrink-0"></i>
                         <span>필터 초기화</span>
                     </button>
                 </div>
@@ -100,184 +112,158 @@
         </div>
     </header>
 
-    <!-- 메인 컨테이너 -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <!-- 메인 컨테이너 (고밀도 한 페이지 뷰) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-5 py-2.5 sm:py-3.5 space-y-2.5 sm:space-y-3">
 
-        <!-- 1. 실시간 안전 현황 요약 대시보드 카드 -->
-        <section aria-label="안전 현황 요약" class="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
-            <!-- 대피 대상 인원 (모바일 최상단 전체 폭 강조 카드) -->
-            <div onclick="filterByStatus('ALL')" class="col-span-2 lg:col-span-1 cursor-pointer bg-white rounded-2xl p-4 border-2 border-slate-200 shadow-sm hover:border-brand-400 active:bg-slate-50 transition relative overflow-hidden group">
-                <div class="flex justify-between items-center lg:items-start">
+        <!-- 1. 실시간 안전 현황 요약 대시보드 카드 (컴팩트 높이) -->
+        <section aria-label="안전 현황 요약" class="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-2.5">
+            <!-- 대피 대상 인원 -->
+            <div onclick="filterByStatus('ALL')" class="col-span-2 lg:col-span-1 cursor-pointer bg-white rounded-xl p-2.5 sm:p-3 border border-slate-300 shadow-2xs hover:border-brand-400 active:bg-slate-50 transition relative overflow-hidden group">
+                <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-xs font-bold text-slate-600">대피 대상 인원 (사내)</p>
-                        <div class="flex items-baseline gap-2 mt-1">
-                            <p id="stat-total" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</p>
-                            <span id="stat-all-raw" class="text-xs text-slate-500 font-medium">/ 전체 0명</span>
+                        <p class="text-[11px] font-bold text-slate-600">대피 대상 (사내)</p>
+                        <div class="flex items-baseline gap-1.5 mt-0.5">
+                            <p id="stat-total" class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">0</p>
+                            <span id="stat-all-raw" class="text-[11px] text-slate-500 font-medium">/ 전체 0명</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 lg:block">
-                        <span id="stat-rate" class="lg:hidden text-xl font-extrabold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-xl">0%</span>
-                        <div class="p-2.5 bg-slate-100 rounded-xl text-slate-700 group-hover:bg-brand-50 group-hover:text-brand-600 transition">
-                            <i data-lucide="users" class="w-5 h-5"></i>
-                        </div>
+                    <div class="flex items-center gap-1.5">
+                        <span id="stat-rate" class="text-sm sm:text-base font-extrabold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-lg">0%</span>
                     </div>
                 </div>
-                <div class="mt-3 hidden lg:flex items-center justify-between text-xs text-slate-500">
-                    <span>대상자 대피율</span>
-                    <span id="stat-rate-desktop" class="font-bold text-brand-600">0%</span>
-                </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full mt-2.5 lg:mt-1.5 overflow-hidden">
+                <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
                     <div id="stat-progress" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
 
             <!-- 대피 완료 -->
-            <div onclick="filterByStatus('EVACUATED')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border border-emerald-200 shadow-sm hover:bg-emerald-50/40 active:bg-emerald-50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs sm:text-xs font-bold text-emerald-700">대피 완료</p>
-                        <p id="stat-evacuated" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">0</p>
-                    </div>
-                    <div class="p-2 bg-emerald-100 rounded-xl text-emerald-600">
-                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-                    </div>
+            <div onclick="filterByStatus('EVACUATED')" class="cursor-pointer bg-white rounded-xl p-2.5 sm:p-3 border border-emerald-200 shadow-2xs hover:bg-emerald-50/40 active:bg-emerald-50 transition flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-emerald-700">대피 완료</p>
+                    <p id="stat-evacuated" class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5 leading-none">0</p>
                 </div>
-                <p class="text-[11px] sm:text-xs text-slate-500 mt-2 sm:mt-3">집결지 이동 완료</p>
+                <div class="p-1.5 bg-emerald-100 rounded-lg text-emerald-600">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                </div>
             </div>
 
             <!-- 미응답 -->
-            <div onclick="filterByStatus('PENDING')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border border-amber-200 shadow-sm hover:bg-amber-50/40 active:bg-amber-50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-amber-700">미응답</p>
-                        <p id="stat-pending" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</p>
-                    </div>
-                    <div class="p-2 bg-amber-100 rounded-xl text-amber-600">
-                        <i data-lucide="clock" class="w-5 h-5"></i>
-                    </div>
+            <div onclick="filterByStatus('PENDING')" class="cursor-pointer bg-white rounded-xl p-2.5 sm:p-3 border border-amber-200 shadow-2xs hover:bg-amber-50/40 active:bg-amber-50 transition flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-amber-700">미응답</p>
+                    <p id="stat-pending" class="text-xl sm:text-2xl font-extrabold text-amber-600 mt-0.5 leading-none">0</p>
                 </div>
-                <p class="text-[11px] sm:text-xs text-slate-500 mt-2 sm:mt-3">잔류 여부 확인 필요</p>
+                <div class="p-1.5 bg-amber-100 rounded-lg text-amber-600">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
             </div>
 
             <!-- 구조/지원 필요 -->
-            <div onclick="filterByStatus('DANGER')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border border-rose-200 shadow-sm hover:bg-rose-50/40 active:bg-rose-50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-rose-700">지원/구조 필요</p>
-                        <p id="stat-danger" class="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-1">0</p>
-                    </div>
-                    <div class="p-2 bg-rose-100 rounded-xl text-rose-600">
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    </div>
+            <div onclick="filterByStatus('DANGER')" class="cursor-pointer bg-white rounded-xl p-2.5 sm:p-3 border border-rose-200 shadow-2xs hover:bg-rose-50/40 active:bg-rose-50 transition flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-rose-700">지원/구조 필요</p>
+                    <p id="stat-danger" class="text-xl sm:text-2xl font-extrabold text-rose-600 mt-0.5 leading-none">0</p>
                 </div>
-                <p class="text-[11px] sm:text-xs text-rose-600 font-semibold mt-2 sm:mt-3">현장 구조 요망</p>
+                <div class="p-1.5 bg-rose-100 rounded-lg text-rose-600">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                </div>
             </div>
 
             <!-- 사외·부재 (관리자 지정) -->
-            <div onclick="filterByStatus('SAFE')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200 shadow-sm hover:bg-slate-50 active:bg-slate-100 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-600">사외·부재</p>
-                        <p id="stat-safe" class="text-2xl sm:text-3xl font-extrabold text-slate-600 mt-1">0</p>
-                    </div>
-                    <div class="p-2 bg-slate-100 rounded-xl text-slate-500">
-                        <i data-lucide="user-minus" class="w-5 h-5"></i>
-                    </div>
+            <div onclick="filterByStatus('SAFE')" class="cursor-pointer bg-white rounded-xl p-2.5 sm:p-3 border border-slate-200 shadow-2xs hover:bg-slate-50 active:bg-slate-100 transition flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-600">사외·부재 (비대상)</p>
+                    <p id="stat-safe" class="text-xl sm:text-2xl font-extrabold text-slate-600 mt-0.5 leading-none">0</p>
                 </div>
-                <p class="text-[11px] sm:text-xs text-slate-400 mt-2 sm:mt-3">휴무·출장 (비대상)</p>
+                <div class="p-1.5 bg-slate-100 rounded-lg text-slate-500">
+                    <i data-lucide="user-minus" class="w-4 h-4"></i>
+                </div>
             </div>
         </section>
 
-        <!-- 1-2. 임직원 vs 협력사·내방객 분리 집계 패널 -->
-        <section aria-label="임직원 및 협력사·내방객 분리 집계" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        <!-- 1-2. 임직원 vs 협력사·내방객 분리 집계 패널 (슬림 바 형태) -->
+        <section aria-label="임직원 및 협력사·내방객 분리 집계" class="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5">
             <!-- 임직원 대피 집계 카드 -->
-            <div onclick="filterByCategory('EMPLOYEE')" id="card-cat-employee" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border-2 border-slate-200 hover:border-brand-400 shadow-sm transition flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="p-2.5 rounded-xl bg-brand-50 text-brand-600 shrink-0">
-                        <i data-lucide="id-card" class="w-5 h-5"></i>
+            <div onclick="filterByCategory('EMPLOYEE')" id="card-cat-employee" class="cursor-pointer bg-white rounded-xl px-3 py-2 border border-slate-200 hover:border-brand-400 shadow-2xs transition flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="p-1.5 rounded-lg bg-brand-50 text-brand-600 shrink-0">
+                        <i data-lucide="id-card" class="w-4 h-4"></i>
                     </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-xs sm:text-sm font-bold text-slate-800">임직원 대피 현황</span>
-                            <span id="emp-rate-badge" class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-brand-100 text-brand-700">0%</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1 truncate">
-                            대상 <strong id="emp-target" class="text-slate-800">0</strong>명 · 
+                    <div class="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span class="text-xs font-bold text-slate-800">임직원</span>
+                        <span id="emp-rate-badge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-brand-100 text-brand-700">0%</span>
+                        <span class="text-[11px] text-slate-500 truncate">
+                            대상 <strong id="emp-target" class="text-slate-800">0</strong> · 
                             완료 <strong id="emp-evac" class="text-emerald-600">0</strong> · 
                             미응답 <strong id="emp-pending" class="text-amber-600">0</strong> · 
                             지원 <strong id="emp-danger" class="text-rose-600">0</strong>
-                        </p>
+                        </span>
                     </div>
                 </div>
-                <span class="text-[11px] font-semibold text-brand-600 shrink-0 hidden sm:inline">임직원만 보기 ›</span>
+                <span class="text-[11px] font-semibold text-brand-600 shrink-0">필터 ›</span>
             </div>
 
             <!-- 협력사·내방객 대피 집계 카드 -->
-            <div onclick="filterByCategory('VISITOR')" id="card-cat-visitor" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 border-2 border-purple-200 hover:border-purple-400 shadow-sm transition flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="p-2.5 rounded-xl bg-purple-50 text-purple-700 shrink-0">
-                        <i data-lucide="building-2" class="w-5 h-5"></i>
+            <div onclick="filterByCategory('VISITOR')" id="card-cat-visitor" class="cursor-pointer bg-white rounded-xl px-3 py-2 border border-purple-200 hover:border-purple-400 shadow-2xs transition flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="p-1.5 rounded-lg bg-purple-50 text-purple-700 shrink-0">
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
                     </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-xs sm:text-sm font-bold text-purple-950">협력사 · 내방객 현황</span>
-                            <span id="vis-rate-badge" class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">0%</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1 truncate">
-                            재실 <strong id="vis-target" class="text-slate-800">0</strong>명 · 
+                    <div class="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span class="text-xs font-bold text-purple-950">협력사·내방객</span>
+                        <span id="vis-rate-badge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">0%</span>
+                        <span class="text-[11px] text-slate-500 truncate">
+                            재실 <strong id="vis-target" class="text-slate-800">0</strong> · 
                             완료 <strong id="vis-evac" class="text-emerald-600">0</strong> · 
                             미확인 <strong id="vis-pending" class="text-amber-600">0</strong> · 
                             지원 <strong id="vis-danger" class="text-rose-600">0</strong>
-                        </p>
+                        </span>
                     </div>
                 </div>
-                <span class="text-[11px] font-semibold text-purple-700 shrink-0 hidden sm:inline">외부인만 보기 ›</span>
+                <span class="text-[11px] font-semibold text-purple-700 shrink-0">필터 ›</span>
             </div>
         </section>
 
-        <!-- 2. 부서 계층 드롭다운 & 통합 검색 필터 영역 -->
-        <section aria-label="부서 및 인원 검색" class="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-200 shadow-sm space-y-3.5 sm:space-y-4">
-            <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
-                <div class="flex items-center gap-2 min-w-0">
-                    <i data-lucide="filter" class="w-4 h-4 text-brand-600 shrink-0"></i>
-                    <h2 class="text-sm font-bold text-slate-800 shrink-0">부서 및 인원 검색</h2>
-                    <div id="active-breadcrumb" class="hidden sm:flex text-xs text-slate-500 flex-wrap items-center gap-1 ml-1">
-                        <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">전체 조직</span>
+        <!-- 2. 부서 계층 드롭다운 & 통합 검색 필터 영역 (압축 레이아웃) -->
+        <section aria-label="부서 및 인원 검색" class="bg-white rounded-xl p-2.5 sm:p-3.5 border border-slate-200 shadow-2xs space-y-2">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <i data-lucide="filter" class="w-3.5 h-3.5 text-brand-600 shrink-0"></i>
+                    <h2 class="text-xs font-bold text-slate-800 shrink-0">부서 · 인원 검색</h2>
+                    <div id="active-breadcrumb" class="hidden sm:flex text-[11px] text-slate-500 flex-wrap items-center gap-1 ml-1">
+                        <span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">전체 조직</span>
                     </div>
                 </div>
                 <!-- 모바일 전용 부서 드롭다운 접기/펼치기 버튼 -->
-                <button type="button" onclick="toggleMobileDeptFilter()" id="mobile-filter-toggle-btn" class="sm:hidden inline-flex items-center gap-1 text-xs font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1.5 rounded-lg">
+                <button type="button" onclick="toggleMobileDeptFilter()" id="mobile-filter-toggle-btn" class="sm:hidden inline-flex items-center gap-1 text-[11px] font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-1 rounded-lg">
                     <span id="mobile-filter-toggle-text">부서 선택 펼치기</span>
-                    <i data-lucide="chevron-down" id="mobile-filter-chevron" class="w-3.5 h-3.5 transition-transform"></i>
+                    <i data-lucide="chevron-down" id="mobile-filter-chevron" class="w-3 h-3 transition-transform"></i>
                 </button>
             </div>
 
-            <!-- 텍스트 검색 및 상태 필터 바 (모바일에서도 항상 최상단 노출) -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3">
-                <!-- 텍스트 검색 (부서명 또는 이름) -->
+            <!-- 텍스트 검색 및 상태 필터 바 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
                 <div class="md:col-span-8 relative">
                     <label for="search-input" class="sr-only">부서명 또는 이름 검색</label>
                     <div class="relative flex items-center">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none"></i>
                         <input 
                             type="text" 
                             id="search-input" 
                             oninput="onSearchInput()"
                             placeholder="성명, 직급 또는 부서명(재무팀, SEC영업팀 등) 검색..." 
-                            class="w-full rounded-xl border border-slate-300 pl-10 pr-16 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+                            class="w-full rounded-lg border border-slate-300 pl-8 pr-14 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
                         >
-                        <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-2.5 text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1 rounded-lg transition">
+                        <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-2 text-[11px] font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-0.5 rounded transition">
                             지우기
                         </button>
                     </div>
-                    <!-- 검색어와 일치하는 부서 빠른 선택 칩 -->
-                    <div id="dept-suggestions" class="hidden flex flex-wrap items-center gap-1.5 mt-2"></div>
+                    <div id="dept-suggestions" class="hidden flex flex-wrap items-center gap-1 mt-1.5"></div>
                 </div>
 
-                <!-- 상태 필터 드롭다운 -->
                 <div class="md:col-span-4">
                     <label for="status-filter" class="sr-only">안전 상태 필터</label>
-                    <select id="status-filter" onchange="onStatusFilterChange()" class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3 py-2.5 text-sm font-medium text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <select id="status-filter" onchange="onStatusFilterChange()" class="w-full rounded-lg border border-slate-300 bg-slate-50/70 px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
                         <option value="ALL">상태 전체 보기</option>
                         <option value="PENDING">⏳ 미응답 인원만 보기</option>
                         <option value="EVACUATED">🟢 대피 완료 인원만 보기</option>
@@ -287,36 +273,32 @@
                 </div>
             </div>
 
-            <!-- 4단계 부서 계층 드롭다운 그리드 (모바일 기본 접힘 / 데스크톱 항상 표시) -->
-            <div id="dept-dropdown-wrapper" class="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 pt-1 border-t border-slate-100 sm:border-t-0">
-                <!-- 1단계: 부문 (CEO / COO) -->
+            <!-- 4단계 부서 계층 드롭다운 그리드 -->
+            <div id="dept-dropdown-wrapper" class="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-0.5">
                 <div>
-                    <label for="select-level1" class="block text-xs font-semibold text-slate-600 mb-1">1단계: 부문 (CEO / COO)</label>
-                    <select id="select-level1" onchange="onLevel1Change()" class="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <label for="select-level1" class="block text-[11px] font-semibold text-slate-500 mb-0.5">1단계: 부문</label>
+                    <select id="select-level1" onchange="onLevel1Change()" class="w-full rounded-lg border border-slate-300 bg-slate-50/50 px-2.5 py-1.5 text-xs text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none transition">
                         <option value="">전체 (미선택)</option>
                     </select>
                 </div>
 
-                <!-- 2단계: 본부 / 직속실 -->
                 <div>
-                    <label for="select-level2" class="block text-xs font-semibold text-slate-600 mb-1">2단계: 본부 / 상위조직</label>
-                    <select id="select-level2" onchange="onLevel2Change()" class="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <label for="select-level2" class="block text-[11px] font-semibold text-slate-500 mb-0.5">2단계: 본부 / 상위조직</label>
+                    <select id="select-level2" onchange="onLevel2Change()" class="w-full rounded-lg border border-slate-300 bg-slate-50/50 px-2.5 py-1.5 text-xs text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none transition">
                         <option value="">전체 (미선택)</option>
                     </select>
                 </div>
 
-                <!-- 3단계: 팀 / 연구그룹 -->
                 <div>
-                    <label for="select-level3" class="block text-xs font-semibold text-slate-600 mb-1">3단계: 팀 / 하위조직</label>
-                    <select id="select-level3" onchange="onLevel3Change()" class="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <label for="select-level3" class="block text-[11px] font-semibold text-slate-500 mb-0.5">3단계: 팀 / 하위조직</label>
+                    <select id="select-level3" onchange="onLevel3Change()" class="w-full rounded-lg border border-slate-300 bg-slate-50/50 px-2.5 py-1.5 text-xs text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none transition">
                         <option value="">전체 (미선택)</option>
                     </select>
                 </div>
 
-                <!-- 4단계: 그룹 / 파트 / TF -->
                 <div>
-                    <label for="select-level4" class="block text-xs font-semibold text-slate-600 mb-1">4단계: 그룹 / TF / 직속</label>
-                    <select id="select-level4" onchange="onLevel4Change()" class="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <label for="select-level4" class="block text-[11px] font-semibold text-slate-500 mb-0.5">4단계: 그룹 / TF / 직속</label>
+                    <select id="select-level4" onchange="onLevel4Change()" class="w-full rounded-lg border border-slate-300 bg-slate-50/50 px-2.5 py-1.5 text-xs text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none transition">
                         <option value="">전체 (미선택)</option>
                     </select>
                 </div>
@@ -324,57 +306,66 @@
         </section>
 
         <!-- 3. 인원 명단 및 대피 상태 응답 영역 -->
-        <section aria-label="소속 부서별 인원 명단" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <section aria-label="소속 부서별 인원 명단" class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
             <!-- 리스트 상단 액션 바 -->
-            <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold text-slate-900">조회 인원 명단</h2>
-                        <span id="filtered-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0명</span>
+            <div class="px-3 sm:px-4 py-2 bg-slate-50/80 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+                    <div class="flex items-center justify-between sm:justify-start gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <h2 class="text-xs sm:text-sm font-bold text-slate-900">조회 인원 명단</h2>
+                            <span id="filtered-count-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-brand-100 text-brand-700">0명</span>
+                        </div>
+                        <div class="flex sm:hidden items-center gap-1 text-[11px]">
+                            <button onclick="bulkUpdateStatus('EVACUATED')" class="px-2 py-0.5 rounded bg-emerald-50 active:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 whitespace-nowrap">
+                                일괄 완료
+                            </button>
+                            <button onclick="bulkUpdateStatus('PENDING')" class="px-2 py-0.5 rounded bg-slate-100 active:bg-slate-200 text-slate-700 font-semibold border border-slate-200 whitespace-nowrap">
+                                초기화
+                            </button>
+                        </div>
                     </div>
-                    <!-- 임직원 / 협력사·내방객 구분 필터 탭 -->
-                    <div class="inline-flex rounded-xl bg-slate-200/70 p-1 text-xs font-semibold">
-                        <button type="button" onclick="filterByCategory('ALL')" id="tab-cat-ALL" class="px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-2xs transition">
+                    <div class="grid grid-cols-3 sm:inline-flex rounded-lg bg-slate-200/70 p-0.5 text-[11px] font-semibold w-full sm:w-auto">
+                        <button type="button" onclick="filterByCategory('ALL')" id="tab-cat-ALL" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition text-center whitespace-nowrap">
                             전체
                         </button>
-                        <button type="button" onclick="filterByCategory('EMPLOYEE')" id="tab-cat-EMPLOYEE" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                        <button type="button" onclick="filterByCategory('EMPLOYEE')" id="tab-cat-EMPLOYEE" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition text-center whitespace-nowrap">
                             임직원
                         </button>
-                        <button type="button" onclick="filterByCategory('VISITOR')" id="tab-cat-VISITOR" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-purple-800 transition">
+                        <button type="button" onclick="filterByCategory('VISITOR')" id="tab-cat-VISITOR" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-purple-800 transition text-center whitespace-nowrap">
                             협력사·내방객
                         </button>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 text-xs">
-                    <span class="text-slate-500 hidden md:inline">조회 인원 일괄 처리:</span>
-                    <button onclick="bulkUpdateStatus('EVACUATED')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium border border-emerald-200 transition">
+                <div class="hidden sm:flex flex-wrap items-center gap-1.5 text-[11px]">
+                    <span class="text-slate-500 hidden md:inline">일괄 처리:</span>
+                    <button onclick="bulkUpdateStatus('EVACUATED')" class="px-2 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium border border-emerald-200 transition">
                         일괄 대피완료
                     </button>
-                    <button onclick="bulkUpdateStatus('PENDING')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium border border-slate-200 transition">
+                    <button onclick="bulkUpdateStatus('PENDING')" class="px-2 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium border border-slate-200 transition">
                         상태 초기화
                     </button>
                 </div>
             </div>
 
-            <!-- 데스크톱 테이블 뷰 -->
-            <div class="hidden md:block overflow-x-auto">
+            <!-- 데스크톱 테이블 뷰 (컴팩트 행 높이) -->
+            <div class="hidden md:block overflow-x-auto max-h-[56vh] overflow-y-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                            <th class="py-3.5 px-5">성명 / 직급</th>
-                            <th class="py-3.5 px-4">소속 부서 경로</th>
-                            <th class="py-3.5 px-4">연락처 / 위치 메모</th>
-                            <th class="py-3.5 px-4">현재 상태</th>
-                            <th class="py-3.5 px-5 text-right">상태 응답 (본인 / 관리자)</th>
+                    <thead class="sticky top-0 z-10 bg-slate-50 shadow-2xs">
+                        <tr class="border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                            <th class="py-2 px-4">성명 / 직급</th>
+                            <th class="py-2 px-3">소속 부서 경로</th>
+                            <th class="py-2 px-3">연락처 / 위치 메모</th>
+                            <th class="py-2 px-3">현재 상태</th>
+                            <th class="py-2 px-4 text-right">상태 응답 (본인 / 관리자)</th>
                         </tr>
                     </thead>
-                    <tbody id="desktop-list-body" class="divide-y divide-slate-100 text-sm">
+                    <tbody id="desktop-list-body" class="divide-y divide-slate-100 text-xs">
                         <!-- JS 동적 렌더링 -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- 모바일 카드 뷰 -->
+            <!-- 모바일 카드 뷰 (고밀도 컴팩트 카드) -->
             <div id="mobile-list-body" class="md:hidden divide-y divide-slate-200">
                 <!-- JS 동적 렌더링 -->
             </div>
@@ -766,12 +757,52 @@
         // 상세 메모 모달 상태 저장용
         let pendingNoteTarget = { id: null, status: null };
 
-        // 초기 실행
-        window.addEventListener('DOMContentLoaded', () => {
+        // 로컬 스토리지 키 (새로고침 시에도 연동 URL 및 최신 상태 유지)
+        const STORAGE_KEYS = {
+            GAS_URL: 'evac_sys_gas_url_v1',
+            SHEET_URL: 'evac_sys_sheet_url_v1',
+            PERSONNEL: 'evac_sys_personnel_v1',
+            ORG_TREE: 'evac_sys_org_tree_v1'
+        };
+
+        function saveStateToLocal() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.PERSONNEL, JSON.stringify(personnelData));
+                localStorage.setItem(STORAGE_KEYS.ORG_TREE, JSON.stringify(ORG_TREE));
+                localStorage.setItem(STORAGE_KEYS.GAS_URL, connectedGasUrl || '');
+            } catch (_) {}
+        }
+
+        // 초기 실행: 저장된 시트/로컬 데이터 복원 후 GAS 최신 상태 자동 동기화
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedGasUrl = localStorage.getItem(STORAGE_KEYS.GAS_URL) || '';
+            const savedSheetUrl = localStorage.getItem(STORAGE_KEYS.SHEET_URL) || '';
+            const savedPersonnel = localStorage.getItem(STORAGE_KEYS.PERSONNEL);
+            const savedOrgTree = localStorage.getItem(STORAGE_KEYS.ORG_TREE);
+
+            if (savedSheetUrl) {
+                const urlInput = document.getElementById('google-sheet-url');
+                if (urlInput) urlInput.value = savedSheetUrl;
+            }
+
+            if (savedPersonnel && savedOrgTree) {
+                try {
+                    personnelData = JSON.parse(savedPersonnel);
+                    ORG_TREE = JSON.parse(savedOrgTree);
+                } catch (_) {}
+            }
+
             populateAllDropdowns();
             initModalDropdowns();
             renderApp();
             lucide.createIcons();
+
+            if (savedGasUrl) {
+                connectedGasUrl = savedGasUrl;
+                document.getElementById('gas-push-box')?.classList.remove('hidden');
+                document.getElementById('header-gas-push-btn')?.classList.remove('hidden');
+                await syncFromGoogleSheetUrl(true);
+            }
         });
 
         /**
@@ -961,10 +992,10 @@
                 if (!tab) return;
                 if (filterState.category === cat) {
                     tab.className = cat === 'VISITOR'
-                        ? 'px-2.5 py-1 rounded-lg bg-purple-700 text-white shadow-2xs transition'
-                        : 'px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-2xs transition';
+                        ? 'px-2.5 py-1.5 sm:py-1 rounded-lg bg-purple-700 text-white shadow-2xs transition text-center whitespace-nowrap'
+                        : 'px-2.5 py-1.5 sm:py-1 rounded-lg bg-white text-slate-900 shadow-2xs transition text-center whitespace-nowrap';
                 } else {
-                    tab.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                    tab.className = 'px-2.5 py-1.5 sm:py-1 rounded-lg text-slate-600 hover:text-slate-900 transition text-center whitespace-nowrap';
                 }
             });
 
@@ -1020,6 +1051,7 @@
         }
 
         function renderApp() {
+            saveStateToLocal();
             updateBreadcrumb();
             updateCategoryTabsUI();
             updateDashboardStats();
@@ -1041,24 +1073,24 @@
 
             emptyState.classList.add('hidden');
 
-            // 데스크톱 테이블 렌더링
+            // 데스크톱 테이블 렌더링 (컴팩트 스케일)
             desktopBody.innerHTML = list.map(p => {
                 const badge = getStatusBadgeHTML(p.status);
                 const visitorTag = p.isVisitor
-                    ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800 ml-1">외부/인솔</span>`
+                    ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-800 ml-1">외부/인솔</span>`
                     : '';
                 return `
                     <tr class="hover:bg-slate-50/80 transition ${p.status === 'DANGER' ? 'bg-rose-50/40' : ''}">
-                        <td class="py-3.5 px-5">
-                            <div class="font-bold text-slate-900 flex items-center flex-wrap gap-1">
+                        <td class="py-2 px-4">
+                            <div class="font-bold text-slate-900 flex items-center flex-wrap gap-1 text-xs">
                                 <span>${p.name}</span>
-                                <span class="text-xs font-normal text-slate-500">${p.role}</span>
+                                <span class="text-[11px] font-normal text-slate-500">${p.role}</span>
                                 ${visitorTag}
                             </div>
-                            <div class="text-xs text-slate-400 mt-0.5">최종응답: ${p.updatedAt}</div>
+                            <div class="text-[10px] text-slate-400">응답: ${p.updatedAt}</div>
                         </td>
-                        <td class="py-3.5 px-4">
-                            <div class="flex flex-wrap items-center gap-1 text-xs">
+                        <td class="py-2 px-3">
+                            <div class="flex flex-wrap items-center gap-1 text-[11px]">
                                 <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${p.l1}</span>
                                 <span class="text-slate-300">›</span>
                                 <span class="text-slate-700 font-medium">${p.l2}</span>
@@ -1068,26 +1100,26 @@
                                 <span class="px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-semibold">${p.l4}</span>
                             </div>
                         </td>
-                        <td class="py-3.5 px-4">
-                            <div class="text-xs text-slate-700 font-medium">${p.phone}</div>
-                            <div class="text-xs text-slate-500 mt-0.5 max-w-xs truncate" title="${p.note || ''}">
-                                ${p.note ? `📍 ${p.note}` : '<span class="text-slate-300">위치/메모 미입력</span>'}
+                        <td class="py-2 px-3">
+                            <div class="text-[11px] text-slate-700 font-medium">${p.phone}</div>
+                            <div class="text-[11px] text-slate-500 max-w-[220px] truncate" title="${p.note || ''}">
+                                ${p.note ? `📍 ${p.note}` : '<span class="text-slate-300">-</span>'}
                             </div>
                         </td>
-                        <td class="py-3.5 px-4">${badge}</td>
-                        <td class="py-3.5 px-5 text-right">
-                            <div class="inline-flex flex-wrap justify-end items-center gap-1.5">
-                                <button onclick="updatePersonStatus(${p.id}, 'EVACUATED')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border ${p.status === 'EVACUATED' ? 'bg-emerald-600 text-white border-emerald-600 status-btn-active' : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200'}">
+                        <td class="py-2 px-3">${badge}</td>
+                        <td class="py-2 px-4 text-right">
+                            <div class="inline-flex flex-wrap justify-end items-center gap-1">
+                                <button onclick="updatePersonStatus(${p.id}, 'EVACUATED')" class="px-2 py-1 rounded-md text-[11px] font-semibold transition border ${p.status === 'EVACUATED' ? 'bg-emerald-600 text-white border-emerald-600 status-btn-active' : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200'}">
                                     대피완료
                                 </button>
-                                <button onclick="openNoteModal(${p.id}, 'DANGER')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border ${p.status === 'DANGER' ? 'bg-rose-600 text-white border-rose-600 status-btn-active' : 'bg-white hover:bg-rose-50 text-rose-700 border-rose-200'}">
+                                <button onclick="openNoteModal(${p.id}, 'DANGER')" class="px-2 py-1 rounded-md text-[11px] font-semibold transition border ${p.status === 'DANGER' ? 'bg-rose-600 text-white border-rose-600 status-btn-active' : 'bg-white hover:bg-rose-50 text-rose-700 border-rose-200'}">
                                     지원필요
                                 </button>
-                                <button onclick="updatePersonStatus(${p.id}, 'SAFE')" title="부서장/관리자 지정: 휴가·출장·재택 등 대피 비대상" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition border ${p.status === 'SAFE' ? 'bg-slate-700 text-white border-slate-700 status-btn-active' : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'}">
+                                <button onclick="updatePersonStatus(${p.id}, 'SAFE')" title="부서장/관리자 지정: 휴가·출장·재택 등 대피 비대상" class="px-2 py-1 rounded-md text-[11px] font-medium transition border ${p.status === 'SAFE' ? 'bg-slate-700 text-white border-slate-700 status-btn-active' : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'}">
                                     사외·부재
                                 </button>
-                                <button onclick="openNoteModal(${p.id}, p.status)" title="현재 위치 및 상황 메모 입력" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent transition">
-                                    <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+                                <button onclick="openNoteModal(${p.id}, p.status)" title="현재 위치 및 상황 메모 입력" class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent transition">
+                                    <i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
                         </td>
@@ -1095,59 +1127,55 @@
                 `;
             }).join('');
 
-            // 모바일 카드 렌더링 (시인성 및 원터치 조작성 강화)
+            // 모바일 카드 렌더링 (고밀도 컴팩트 UI)
             mobileBody.innerHTML = list.map(p => {
                 const badge = getStatusBadgeHTML(p.status);
                 const visitorTag = p.isVisitor
-                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-800">외부/인솔</span>`
+                    ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">외부/인솔</span>`
                     : '';
                 const telNumber = (p.phone || '').replace(/[^0-9+]/g, '');
                 const phoneHTML = telNumber
-                    ? `<a href="tel:${telNumber}" class="inline-flex items-center gap-1 font-semibold text-brand-700 underline underline-offset-2"><i data-lucide="phone-call" class="w-3.5 h-3.5"></i>${p.phone}</a>`
+                    ? `<a href="tel:${telNumber}" class="inline-flex items-center gap-1 font-semibold text-brand-700 underline underline-offset-2"><i data-lucide="phone-call" class="w-3 h-3"></i>${p.phone}</a>`
                     : `<span>📞 ${p.phone}</span>`;
 
                 return `
-                    <div class="p-4 space-y-3 ${p.status === 'DANGER' ? 'bg-rose-50/60 border-l-4 border-l-rose-600' : 'bg-white'}">
+                    <div class="p-2.5 space-y-2 ${p.status === 'DANGER' ? 'bg-rose-50/60 border-l-4 border-l-rose-600' : 'bg-white'}">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                                <div class="flex items-center flex-wrap gap-1.5">
-                                    <span class="font-extrabold text-lg text-slate-900 leading-tight">${p.name}</span>
-                                    <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">${p.role}</span>
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <span class="font-extrabold text-sm text-slate-900 leading-tight">${p.name}</span>
+                                    <span class="text-[11px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">${p.role}</span>
                                     ${visitorTag}
                                 </div>
-                                <div class="flex flex-wrap items-center gap-1 text-xs text-slate-600 mt-1.5">
+                                <div class="flex flex-wrap items-center gap-1 text-[11px] text-slate-600 mt-1">
                                     <span>${p.l1}</span>
                                     <span class="text-slate-300">›</span>
                                     <span>${p.l2}</span>
                                     <span class="text-slate-300">›</span>
                                     <span class="font-medium text-slate-800">${p.l3}</span>
                                     <span class="text-slate-300">›</span>
-                                    <span class="px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-bold">${p.l4}</span>
+                                    <span class="px-1 py-0.5 rounded bg-brand-50 text-brand-700 font-bold">${p.l4}</span>
                                 </div>
                             </div>
                             <div class="shrink-0">${badge}</div>
                         </div>
-                        <div class="flex items-center justify-between text-xs text-slate-600 bg-slate-50 border border-slate-100 px-3 py-2.5 rounded-xl">
+                        <div class="flex items-center justify-between text-[11px] text-slate-600 bg-slate-50 border border-slate-100 px-2.5 py-1.5 rounded-lg">
                             ${phoneHTML}
                             <span class="font-medium text-slate-500">응답: <strong class="text-slate-700">${p.updatedAt}</strong></span>
                         </div>
-                        ${p.note ? `<div class="text-xs font-medium text-slate-800 bg-amber-50/80 border border-amber-200/80 px-3 py-2 rounded-xl leading-relaxed">📍 ${p.note}</div>` : ''}
-                        <div class="grid grid-cols-2 gap-2 pt-0.5">
-                            <button onclick="updatePersonStatus(${p.id}, 'EVACUATED')" class="py-2.5 px-3 rounded-xl text-xs font-extrabold border transition active:scale-[0.98] flex items-center justify-center gap-1.5 ${p.status === 'EVACUATED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}">
-                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        ${p.note ? `<div class="text-[11px] font-medium text-slate-800 bg-amber-50/80 border border-amber-200/80 px-2.5 py-1.5 rounded-lg leading-snug break-words">📍 ${p.note}</div>` : ''}
+                        <div class="grid grid-cols-4 gap-1.5 pt-0.5">
+                            <button onclick="updatePersonStatus(${p.id}, 'EVACUATED')" class="min-h-[36px] py-1.5 px-1 rounded-lg text-[11px] font-extrabold border transition active:scale-[0.98] flex items-center justify-center gap-1 whitespace-nowrap ${p.status === 'EVACUATED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}">
                                 <span>대피완료</span>
                             </button>
-                            <button onclick="openNoteModal(${p.id}, 'DANGER')" class="py-2.5 px-3 rounded-xl text-xs font-extrabold border transition active:scale-[0.98] flex items-center justify-center gap-1.5 ${p.status === 'DANGER' ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-rose-50 text-rose-800 border-rose-200'}">
-                                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            <button onclick="openNoteModal(${p.id}, 'DANGER')" class="min-h-[36px] py-1.5 px-1 rounded-lg text-[11px] font-extrabold border transition active:scale-[0.98] flex items-center justify-center gap-1 whitespace-nowrap ${p.status === 'DANGER' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-rose-50 text-rose-800 border-rose-200'}">
                                 <span>지원필요</span>
                             </button>
-                            <button onclick="updatePersonStatus(${p.id}, 'SAFE')" class="py-2.5 px-3 rounded-xl text-xs font-semibold border transition active:scale-[0.98] flex items-center justify-center gap-1.5 ${p.status === 'SAFE' ? 'bg-slate-700 text-white border-slate-700 shadow-sm' : 'bg-slate-100 text-slate-700 border-slate-200'}">
-                                <i data-lucide="user-minus" class="w-4 h-4"></i>
+                            <button onclick="updatePersonStatus(${p.id}, 'SAFE')" class="min-h-[36px] py-1.5 px-1 rounded-lg text-[11px] font-semibold border transition active:scale-[0.98] flex items-center justify-center gap-1 whitespace-nowrap ${p.status === 'SAFE' ? 'bg-slate-700 text-white border-slate-700 shadow-2xs' : 'bg-slate-100 text-slate-700 border-slate-200'}">
                                 <span>사외·부재</span>
                             </button>
-                            <button onclick="openNoteModal(${p.id}, p.status)" class="py-2.5 px-3 rounded-xl text-xs font-semibold border border-slate-300 bg-white text-slate-700 active:scale-[0.98] flex items-center justify-center gap-1.5">
-                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                <span>위치·메모</span>
+                            <button onclick="openNoteModal(${p.id}, p.status)" class="min-h-[36px] py-1.5 px-1 rounded-lg text-[11px] font-semibold border border-slate-300 bg-white text-slate-700 active:scale-[0.98] flex items-center justify-center gap-1 whitespace-nowrap">
+                                <span>메모</span>
                             </button>
                         </div>
                     </div>
@@ -1386,6 +1414,7 @@
                 const phone = String(item.phone || '-').trim();
                 const status = ['EVACUATED', 'SAFE', 'DANGER', 'PENDING'].includes(item.status) ? item.status : 'PENDING';
                 const note = String(item.note || '').trim();
+                const isVisitor = Boolean(item.isVisitor);
 
                 newPersonnel.push({
                     id: idx + 1,
@@ -1398,6 +1427,7 @@
                     phone,
                     status,
                     note,
+                    isVisitor,
                     updatedAt: status === 'PENDING' ? '-' : getCurrentTimeString()
                 });
 
@@ -1515,6 +1545,14 @@
         function restoreDefaultSampleData() {
             ORG_TREE = JSON.parse(JSON.stringify(DEFAULT_ORG_TREE));
             personnelData = JSON.parse(JSON.stringify(DEFAULT_PERSONNEL_DATA));
+            connectedGasUrl = "";
+            localStorage.removeItem(STORAGE_KEYS.GAS_URL);
+            localStorage.removeItem(STORAGE_KEYS.SHEET_URL);
+            localStorage.removeItem(STORAGE_KEYS.PERSONNEL);
+            localStorage.removeItem(STORAGE_KEYS.ORG_TREE);
+            document.getElementById('google-sheet-url').value = "";
+            document.getElementById('gas-push-box').classList.add('hidden');
+            document.getElementById('header-gas-push-btn').classList.add('hidden');
             resetAllFilters();
             initModalDropdowns();
             document.getElementById('sheet-sync-status').textContent = "기본 내장 조직도 및 샘플 인원 데이터로 복원되었습니다.";
@@ -1547,13 +1585,16 @@
             }
 
             renderApp();
+            if (connectedGasUrl) {
+                syncSingleRecordsToGas([person]);
+            }
             const labelMap = {
                 EVACUATED: "대피 완료",
                 SAFE: "사외·부재(비대상)",
                 DANGER: "지원/구조 필요",
                 PENDING: "미응답(초기화)"
             };
-            showToast(`${person.name} 님의 상태가 [${labelMap[newStatus]}]로 변경되었습니다.`);
+            showToast(`${person.name} 님의 상태가 [${labelMap[newStatus]}]로 변경되었습니다.${connectedGasUrl ? ' (시트 자동기록됨)' : ''}`);
         }
 
         function bulkUpdateStatus(newStatus) {
@@ -1570,7 +1611,10 @@
                 else if (newStatus === 'EVACUATED' && !p.note) p.note = "집결지 일괄 대피 확인";
             });
             renderApp();
-            showToast(`조회된 ${targetList.length}명의 상태가 일괄 업데이트되었습니다.`);
+            if (connectedGasUrl) {
+                syncSingleRecordsToGas(targetList);
+            }
+            showToast(`조회된 ${targetList.length}명의 상태가 일괄 업데이트되었습니다.${connectedGasUrl ? ' (시트 자동기록됨)' : ''}`);
         }
 
         /**
@@ -1745,7 +1789,7 @@
 
             if (mode === 'INDIVIDUAL') {
                 const status = document.getElementById('individual-status').value;
-                personnelData.unshift({
+                const newVisitor = {
                     id: ++maxId,
                     name: label,
                     role: `내방객 (인솔: ${escortName})`,
@@ -1756,16 +1800,19 @@
                     updatedAt: status === 'PENDING' ? '-' : nowStr,
                     isVisitor: true,
                     reporterInfo
-                });
-                showToast(`내방객 [${label}] 님이 등록되었습니다.`);
+                };
+                personnelData.unshift(newVisitor);
+                if (connectedGasUrl) syncSingleRecordsToGas([newVisitor]);
+                showToast(`내방객 [${label}] 님이 등록되었습니다.${connectedGasUrl ? ' (시트 자동기록됨)' : ''}`);
             } else {
                 const total = Math.max(1, parseInt(document.getElementById('visitor-total-count').value || '1', 10));
                 const evac = Math.min(total, Math.max(0, parseInt(document.getElementById('visitor-evac-count').value || '0', 10)));
+                const createdGroup = [];
 
                 // 마지막 번호부터 미확인(PENDING)이 되도록 역순으로 unshift하여 1번부터 순서대로 노출
                 for (let i = total; i >= 1; i--) {
                     const isEvacuated = i <= evac;
-                    personnelData.unshift({
+                    const item = {
                         id: ++maxId,
                         name: `${label}${i}`,
                         role: `외부/협력사 (인솔: ${escortName})`,
@@ -1776,9 +1823,12 @@
                         updatedAt: isEvacuated ? nowStr : '-',
                         isVisitor: true,
                         reporterInfo
-                    });
+                    };
+                    personnelData.unshift(item);
+                    createdGroup.unshift(item);
                 }
-                showToast(`[${label}1~${label}${total}] 총 ${total}명 (대피 ${evac}명 / 미확인 ${total - evac}명) 등록되었습니다.`);
+                if (connectedGasUrl) syncSingleRecordsToGas(createdGroup);
+                showToast(`[${label}1~${label}${total}] 총 ${total}명 (대피 ${evac}명 / 미확인 ${total - evac}명) 등록되었습니다.${connectedGasUrl ? ' (시트 자동기록됨)' : ''}`);
             }
 
             document.getElementById('add-person-form').reset();
@@ -1834,9 +1884,10 @@
 
         // 일반 구글 시트 편집 URL을 공개 CSV export URL로 자동 변환
         function normalizeGoogleSheetUrl(rawUrl) {
-            // 1) GAS 웹 앱 URL 판별
-            if (rawUrl.includes('script.google.com/macros/')) {
-                return { type: 'GAS', url: rawUrl };
+            // 1) GAS 웹 앱 URL 판별 (Workspace 도메인 경로 /a/macros/domain.com/s/ -> 표준 /macros/s/ 보정)
+            if (rawUrl.includes('script.google.com/')) {
+                const cleanedUrl = rawUrl.replace(/\/a\/macros\/[^/]+\/s\//, '/macros/s/');
+                return { type: 'GAS', url: cleanedUrl };
             }
 
             // 2) 일반 구글 시트 URL (https://docs.google.com/spreadsheets/d/{ID}/edit...) 변환
@@ -1855,15 +1906,17 @@
             return { type: 'CSV', url: rawUrl };
         }
 
-        async function syncFromGoogleSheetUrl() {
+        async function syncFromGoogleSheetUrl(isAutoRestore = false) {
             const rawInput = document.getElementById('google-sheet-url').value.trim();
             const statusEl = document.getElementById('sheet-sync-status');
             const gasPushBox = document.getElementById('gas-push-box');
             const btn = document.getElementById('sync-url-btn');
 
             if (!rawInput) {
-                statusEl.textContent = "⚠️ 구글 시트 URL 또는 GAS 웹 앱(/exec) 주소를 입력해 주세요.";
-                statusEl.className = "text-xs text-amber-600 font-semibold";
+                if (!isAutoRestore) {
+                    statusEl.textContent = "⚠️ 구글 시트 URL 또는 GAS 웹 앱(/exec) 주소를 입력해 주세요.";
+                    statusEl.className = "text-xs text-amber-600 font-semibold";
+                }
                 return;
             }
 
@@ -1873,6 +1926,7 @@
             statusEl.className = "text-xs text-slate-500";
 
             const target = normalizeGoogleSheetUrl(rawInput);
+            localStorage.setItem(STORAGE_KEYS.SHEET_URL, rawInput);
 
             try {
                 if (target.type === 'GAS') {
@@ -1891,12 +1945,16 @@
 
                     applyParsedRecordsToSystem(jsonResult.data);
                     connectedGasUrl = target.url;
+                    saveStateToLocal();
                     gasPushBox.classList.remove('hidden');
+                    document.getElementById('header-gas-push-btn')?.classList.remove('hidden');
                     lucide.createIcons();
 
-                    statusEl.textContent = `✅ GAS 웹 앱 연동 완료! 총 ${personnelData.length}명의 명단을 불러왔습니다. (결과 시트 전송 활성화됨)`;
+                    statusEl.textContent = `✅ GAS 웹 앱 연동 완료! 총 ${personnelData.length}명의 명단을 불러왔으며, 이후 모든 상태 변경이 '대피결과보고' 시트에 자동 기록됩니다.`;
                     statusEl.className = "text-xs text-emerald-600 font-semibold";
-                    showToast(`GAS 웹 앱에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                    if (!isAutoRestore) {
+                        showToast(`GAS 웹 앱에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                    }
                 } else {
                     // CSV URL 연동 (일반 시트 URL 자동 변환 포함)
                     const response = await fetch(target.url);
@@ -1910,15 +1968,22 @@
 
                     applyCsvDataToSystem(csvText);
                     connectedGasUrl = "";
+                    saveStateToLocal();
                     gasPushBox.classList.add('hidden');
+                    document.getElementById('header-gas-push-btn')?.classList.add('hidden');
 
                     statusEl.textContent = `✅ 구글 시트 연동 완료! 총 ${personnelData.length}명의 인원 및 부서 체계가 적용되었습니다.`;
                     statusEl.className = "text-xs text-emerald-600 font-semibold";
-                    showToast(`구글 시트에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                    if (!isAutoRestore) {
+                        showToast(`구글 시트에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                    }
                 }
             } catch (error) {
-                connectedGasUrl = "";
-                gasPushBox.classList.add('hidden');
+                if (!isAutoRestore) {
+                    connectedGasUrl = "";
+                    gasPushBox.classList.add('hidden');
+                    document.getElementById('header-gas-push-btn')?.classList.add('hidden');
+                }
                 statusEl.textContent = `❌ 불러오기 실패: ${error.message}`;
                 statusEl.className = "text-xs text-rose-600 font-semibold";
             } finally {
@@ -1927,13 +1992,45 @@
             }
         }
 
+        // 개별 또는 일괄 변경된 인원 상태를 구글 시트 '대피결과보고' 탭에 실시간 자동 반영 (Upsert)
+        function syncSingleRecordsToGas(targetList) {
+            if (!connectedGasUrl || !Array.isArray(targetList) || targetList.length === 0) return;
+            const statusMap = {
+                EVACUATED: "대피완료",
+                PENDING: "미응답",
+                DANGER: "지원필요",
+                SAFE: "사외·부재(비대상)"
+            };
+
+            const records = targetList.map(p => ({
+                isVisitor: Boolean(p.isVisitor),
+                name: p.name,
+                role: p.role,
+                l1: p.l1,
+                l2: p.l2,
+                l3: p.l3,
+                l4: p.l4,
+                status: statusMap[p.status] || p.status,
+                phone: p.phone,
+                note: p.isVisitor && p.reporterInfo ? `[보고주체: ${p.reporterInfo}] ${p.note || ''}` : (p.note || '')
+            }));
+
+            fetch(connectedGasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ mode: 'UPSERT', records })
+            }).catch(() => {});
+        }
+
         // 연결된 GAS 웹 앱의 '대피결과보고' 시트로 현재 전체 현황 즉시 전송
         async function pushReportToGas() {
             if (!connectedGasUrl) {
-                showToast("먼저 GAS 웹 앱(/exec) URL을 연동해 주세요.");
+                showToast("먼저 [구글 시트 연동]에서 GAS 웹 앱(/exec) URL을 연결해 주세요.");
                 return;
             }
             const pushBtn = document.getElementById('gas-push-btn');
+            const headerPushBtn = document.getElementById('header-gas-push-btn');
             const statusMap = {
                 EVACUATED: "대피완료",
                 PENDING: "미응답",
@@ -1954,8 +2051,11 @@
                 note: p.isVisitor && p.reporterInfo ? `[보고주체: ${p.reporterInfo}] ${p.note || ''}` : (p.note || '')
             }));
 
-            pushBtn.disabled = true;
-            pushBtn.innerHTML = '<span>구글 시트로 전송 중...</span>';
+            if (pushBtn) {
+                pushBtn.disabled = true;
+                pushBtn.innerHTML = '<span>구글 시트로 전송 중...</span>';
+            }
+            if (headerPushBtn) headerPushBtn.disabled = true;
 
             try {
                 // GAS doPost는 text/plain 전송 시 CORS preflight 없이 가장 안정적으로 수신됨
@@ -1963,14 +2063,17 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ records })
+                    body: JSON.stringify({ mode: 'SNAPSHOT', records })
                 });
-                showToast(`총 ${records.length}건의 대피 현황이 구글 시트 [대피결과보고] 탭으로 전송되었습니다.`);
+                showToast(`총 ${records.length}건의 전체 대피 현황이 구글 시트 [대피결과보고] 탭에 기록되었습니다.`);
             } catch (err) {
                 showToast("시트 전송 중 오류가 발생했습니다. CSV 다운로드를 이용해 주세요.");
             } finally {
-                pushBtn.disabled = false;
-                pushBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 text-emerald-400"></i><span>현재 대피 현황 및 협력사 명단을 구글 시트(대피결과보고)로 즉시 전송</span>';
+                if (pushBtn) {
+                    pushBtn.disabled = false;
+                    pushBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 text-emerald-400"></i><span>현재 대피 현황 및 협력사 명단을 구글 시트(대피결과보고)로 즉시 전송</span>';
+                }
+                if (headerPushBtn) headerPushBtn.disabled = false;
                 lucide.createIcons();
             }
         }
