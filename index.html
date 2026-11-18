@@ -564,12 +564,12 @@
 
             <!-- 연동 가이드 안내 -->
             <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs text-slate-600 space-y-2">
-                <p class="font-bold text-slate-800">📌 구글 시트 연동 방법 (1분 설정)</p>
-                <ol class="list-decimal list-inside space-y-1 text-slate-600">
-                    <li>구글 시트에 <span class="font-semibold text-slate-800">[성명, 직급, 1단계(부문), 2단계(본부), 3단계(팀), 4단계(그룹/직속), 연락처, 기본상태]</span> 순으로 인원을 작성합니다.</li>
-                    <li>시트 상단 <span class="font-semibold text-slate-800">[파일] → [공유] → [웹에 게시]</span> 클릭 후 형식을 <span class="font-semibold text-emerald-700">쉼표로 구분된 값(.csv)</span>으로 선택해 게시합니다.</li>
-                    <li>생성된 <span class="font-semibold text-slate-800">CSV 링크</span>를 아래에 붙여넣고 동기화를 누르면 부서 드롭다운과 명단이 자동 갱신됩니다.</li>
-                </ol>
+                <p class="font-bold text-slate-800">📌 지원되는 모든 구글 시트 / Apps Script URL 형식</p>
+                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li><span class="font-semibold text-emerald-700">GAS 웹 앱 URL</span> (<code class="bg-slate-200/70 px-1 rounded">https://script.google.com/macros/s/.../exec</code>) — 명단 조회 및 <span class="font-semibold text-slate-800">결과 시트 직접 전송</span> 지원</li>
+                    <li><span class="font-semibold text-brand-700">구글 시트 일반 주소</span> (<code class="bg-slate-200/70 px-1 rounded">https://docs.google.com/spreadsheets/d/.../edit</code>) — 링크 공유 시 자동 CSV 변환</li>
+                    <li><span class="font-semibold text-slate-800">웹에 게시 CSV URL</span> (<code class="bg-slate-200/70 px-1 rounded">.../pub?output=csv</code>)</li>
+                </ul>
                 <div class="pt-1">
                     <button type="button" onclick="downloadSampleCSV()" class="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-700 font-semibold underline">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
@@ -578,18 +578,26 @@
                 </div>
             </div>
 
-            <!-- 방법 1: 구글 시트 웹 게시 CSV URL 입력 -->
+            <!-- 방법 1: 구글 시트 URL 또는 GAS 웹앱 URL 입력 -->
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-700">방법 1. 구글 시트 웹 게시 URL (.csv)</label>
+                <label class="block text-xs font-bold text-slate-700">방법 1. 구글 시트 URL 또는 GAS 웹 앱(/exec) URL 입력</label>
                 <div class="flex gap-2">
-                    <input type="url" id="google-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" 
+                    <input type="url" id="google-sheet-url" placeholder="https://script.google.com/macros/s/.../exec 또는 구글 시트 URL" 
                         class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs focus:border-emerald-500 focus:outline-none">
                     <button type="button" onclick="syncFromGoogleSheetUrl()" id="sync-url-btn"
                         class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 transition">
-                        시트 불러오기
+                        불러오기
                     </button>
                 </div>
                 <p id="sheet-sync-status" class="text-xs text-slate-500"></p>
+                <!-- GAS 웹앱 연결 시 활성화되는 시트 직접 저장 버튼 -->
+                <div id="gas-push-box" class="hidden pt-1">
+                    <button type="button" onclick="pushReportToGas()" id="gas-push-btn"
+                        class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition shadow-sm">
+                        <i data-lucide="cloud-upload" class="w-4 h-4 text-emerald-400"></i>
+                        <span>현재 대피 현황 및 협력사 명단을 구글 시트(대피결과보고)로 즉시 전송</span>
+                    </button>
+                </div>
             </div>
 
             <!-- 방법 2: CSV 파일 직접 업로드 -->
@@ -751,6 +759,9 @@
             status: "ALL",
             category: "ALL" // ALL | EMPLOYEE | VISITOR
         };
+
+        // 연결된 GAS 웹 앱 URL 저장용 (양방향 결과 전송 지원)
+        let connectedGasUrl = "";
 
         // 상세 메모 모달 상태 저장용
         let pendingNoteTarget = { id: null, status: null };
@@ -1311,8 +1322,7 @@
 
             // 첫 번째 행(헤더) 제외
             const dataRows = rows.slice(1);
-            const newPersonnel = [];
-            const newOrgTree = {};
+            const parsedRecords = [];
 
             dataRows.forEach((cols, idx) => {
                 const name = cols[0] || '';
@@ -1337,6 +1347,46 @@
                     note = '시트 반영: 대피 완료';
                 }
 
+                parsedRecords.push({
+                    id: idx + 1,
+                    name,
+                    role,
+                    l1,
+                    l2,
+                    l3,
+                    l4,
+                    phone,
+                    status,
+                    note,
+                    updatedAt: status === 'PENDING' ? '-' : getCurrentTimeString()
+                });
+            });
+
+            applyParsedRecordsToSystem(parsedRecords);
+        }
+
+        // CSV 또는 GAS JSON에서 추출된 표준 인원 배열을 앱 전체와 조직도에 반영
+        function applyParsedRecordsToSystem(records) {
+            if (!Array.isArray(records) || records.length === 0) {
+                throw new Error("인원 데이터를 찾을 수 없습니다.");
+            }
+
+            const newPersonnel = [];
+            const newOrgTree = {};
+
+            records.forEach((item, idx) => {
+                const name = String(item.name || '').trim();
+                if (!name) return;
+
+                const role = String(item.role || '매니저').trim();
+                const l1 = String(item.l1 || '미지정 부문').trim();
+                const l2 = String(item.l2 || `${l1} 직속`).trim();
+                const l3 = String(item.l3 || `${l2} 직속`).trim();
+                const l4 = String(item.l4 || `${l3} 직속`).trim();
+                const phone = String(item.phone || '-').trim();
+                const status = ['EVACUATED', 'SAFE', 'DANGER', 'PENDING'].includes(item.status) ? item.status : 'PENDING';
+                const note = String(item.note || '').trim();
+
                 newPersonnel.push({
                     id: idx + 1,
                     name,
@@ -1360,13 +1410,14 @@
                 }
             });
 
-            if (newPersonnel.length === 0) throw new Error("인원 데이터를 찾을 수 없습니다.");
+            if (newPersonnel.length === 0) throw new Error("유효한 성명이 포함된 인원이 없습니다.");
 
             ORG_TREE = newOrgTree;
             personnelData = newPersonnel;
-            filterState = { l1: "", l2: "", l3: "", l4: "", search: "", status: "ALL" };
+            filterState = { l1: "", l2: "", l3: "", l4: "", search: "", status: "ALL", category: "ALL" };
             document.getElementById('search-input').value = '';
             document.getElementById('status-filter').value = 'ALL';
+            updateCategoryTabsUI();
             populateAllDropdowns();
             initModalDropdowns();
             renderApp();
@@ -1747,37 +1798,180 @@
             document.getElementById('sheet-modal').classList.add('hidden');
         }
 
+        // JSONP 호출 헬퍼 (GAS 웹 앱 CORS 차단 우회용 폴백)
+        function fetchGasViaJsonp(baseUrl) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `gasCallback_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                const separator = baseUrl.includes('?') ? '&' : '?';
+
+                const cleanup = () => {
+                    delete window[callbackName];
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                };
+
+                const timer = setTimeout(() => {
+                    cleanup();
+                    reject(new Error("GAS 응답 시간 초과 (배포 권한이 '모든 사용자'인지 확인해 주세요)"));
+                }, 10000);
+
+                window[callbackName] = (data) => {
+                    clearTimeout(timer);
+                    cleanup();
+                    resolve(data);
+                };
+
+                script.onerror = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    reject(new Error("GAS 스크립트 로드 실패"));
+                };
+
+                script.src = `${baseUrl}${separator}callback=${callbackName}`;
+                document.body.appendChild(script);
+            });
+        }
+
+        // 일반 구글 시트 편집 URL을 공개 CSV export URL로 자동 변환
+        function normalizeGoogleSheetUrl(rawUrl) {
+            // 1) GAS 웹 앱 URL 판별
+            if (rawUrl.includes('script.google.com/macros/')) {
+                return { type: 'GAS', url: rawUrl };
+            }
+
+            // 2) 일반 구글 시트 URL (https://docs.google.com/spreadsheets/d/{ID}/edit...) 변환
+            const sheetIdMatch = rawUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            if (sheetIdMatch && !rawUrl.includes('/d/e/')) {
+                const spreadsheetId = sheetIdMatch[1];
+                const gidMatch = rawUrl.match(/[?&#]gid=([0-9]+)/);
+                const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '';
+                return {
+                    type: 'CSV',
+                    url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv${gidParam}`
+                };
+            }
+
+            // 3) 웹에 게시 CSV URL 등 기타 직접 CSV URL
+            return { type: 'CSV', url: rawUrl };
+        }
+
         async function syncFromGoogleSheetUrl() {
-            const urlInput = document.getElementById('google-sheet-url').value.trim();
+            const rawInput = document.getElementById('google-sheet-url').value.trim();
             const statusEl = document.getElementById('sheet-sync-status');
+            const gasPushBox = document.getElementById('gas-push-box');
             const btn = document.getElementById('sync-url-btn');
 
-            if (!urlInput) {
-                statusEl.textContent = "⚠️ 구글 시트에서 웹에 게시한 CSV URL을 입력해 주세요.";
+            if (!rawInput) {
+                statusEl.textContent = "⚠️ 구글 시트 URL 또는 GAS 웹 앱(/exec) 주소를 입력해 주세요.";
                 statusEl.className = "text-xs text-amber-600 font-semibold";
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = "불러오는 중...";
-            statusEl.textContent = "구글 시트 데이터를 가져오는 중입니다...";
+            btn.textContent = "연동 중...";
+            statusEl.textContent = "구글 시트 데이터를 불러오는 중입니다...";
             statusEl.className = "text-xs text-slate-500";
 
-            try {
-                const response = await fetch(urlInput);
-                if (!response.ok) throw new Error(`HTTP 오류 (${response.status})`);
-                const csvText = await response.text();
-                applyCsvDataToSystem(csvText);
+            const target = normalizeGoogleSheetUrl(rawInput);
 
-                statusEl.textContent = `✅ 동기화 완료! 총 ${personnelData.length}명의 인원 및 부서 체계가 적용되었습니다.`;
-                statusEl.className = "text-xs text-emerald-600 font-semibold";
-                showToast(`구글 시트에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+            try {
+                if (target.type === 'GAS') {
+                    // GAS 웹 앱 JSON API 연동 (fetch 시도 후 CORS 차단 시 JSONP 자동 폴백)
+                    let jsonResult = null;
+                    try {
+                        const res = await fetch(target.url, { redirect: 'follow' });
+                        jsonResult = await res.json();
+                    } catch (_) {
+                        jsonResult = await fetchGasViaJsonp(target.url);
+                    }
+
+                    if (!jsonResult || !jsonResult.success) {
+                        throw new Error(jsonResult?.message || jsonResult?.error || "GAS 응답 형식 오류");
+                    }
+
+                    applyParsedRecordsToSystem(jsonResult.data);
+                    connectedGasUrl = target.url;
+                    gasPushBox.classList.remove('hidden');
+                    lucide.createIcons();
+
+                    statusEl.textContent = `✅ GAS 웹 앱 연동 완료! 총 ${personnelData.length}명의 명단을 불러왔습니다. (결과 시트 전송 활성화됨)`;
+                    statusEl.className = "text-xs text-emerald-600 font-semibold";
+                    showToast(`GAS 웹 앱에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                } else {
+                    // CSV URL 연동 (일반 시트 URL 자동 변환 포함)
+                    const response = await fetch(target.url);
+                    if (!response.ok) throw new Error(`HTTP 오류 (${response.status})`);
+                    const csvText = await response.text();
+
+                    // HTML 로그인 페이지가 반환된 경우(비공개 시트) 감지
+                    if (csvText.trim().startsWith('<!DOCTYPE html') || csvText.includes('<html')) {
+                        throw new Error("시트가 비공개 상태입니다. 구글 시트 우측 상단 [공유]에서 '링크가 있는 모든 사용자(뷰어)'로 변경하거나 [웹에 게시]를 해주세요.");
+                    }
+
+                    applyCsvDataToSystem(csvText);
+                    connectedGasUrl = "";
+                    gasPushBox.classList.add('hidden');
+
+                    statusEl.textContent = `✅ 구글 시트 연동 완료! 총 ${personnelData.length}명의 인원 및 부서 체계가 적용되었습니다.`;
+                    statusEl.className = "text-xs text-emerald-600 font-semibold";
+                    showToast(`구글 시트에서 ${personnelData.length}명의 명단을 동기화했습니다.`);
+                }
             } catch (error) {
-                statusEl.textContent = "❌ 불러오기 실패: 시트가 '웹에 게시(CSV)' 상태인지 확인하거나 아래 CSV 파일 업로드를 이용해 주세요.";
+                connectedGasUrl = "";
+                gasPushBox.classList.add('hidden');
+                statusEl.textContent = `❌ 불러오기 실패: ${error.message}`;
                 statusEl.className = "text-xs text-rose-600 font-semibold";
             } finally {
                 btn.disabled = false;
-                btn.textContent = "시트 불러오기";
+                btn.textContent = "불러오기";
+            }
+        }
+
+        // 연결된 GAS 웹 앱의 '대피결과보고' 시트로 현재 전체 현황 즉시 전송
+        async function pushReportToGas() {
+            if (!connectedGasUrl) {
+                showToast("먼저 GAS 웹 앱(/exec) URL을 연동해 주세요.");
+                return;
+            }
+            const pushBtn = document.getElementById('gas-push-btn');
+            const statusMap = {
+                EVACUATED: "대피완료",
+                PENDING: "미응답",
+                DANGER: "지원필요",
+                SAFE: "사외·부재(비대상)"
+            };
+
+            const records = personnelData.map(p => ({
+                isVisitor: Boolean(p.isVisitor),
+                name: p.name,
+                role: p.role,
+                l1: p.l1,
+                l2: p.l2,
+                l3: p.l3,
+                l4: p.l4,
+                status: statusMap[p.status] || p.status,
+                phone: p.phone,
+                note: p.isVisitor && p.reporterInfo ? `[보고주체: ${p.reporterInfo}] ${p.note || ''}` : (p.note || '')
+            }));
+
+            pushBtn.disabled = true;
+            pushBtn.innerHTML = '<span>구글 시트로 전송 중...</span>';
+
+            try {
+                // GAS doPost는 text/plain 전송 시 CORS preflight 없이 가장 안정적으로 수신됨
+                await fetch(connectedGasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ records })
+                });
+                showToast(`총 ${records.length}건의 대피 현황이 구글 시트 [대피결과보고] 탭으로 전송되었습니다.`);
+            } catch (err) {
+                showToast("시트 전송 중 오류가 발생했습니다. CSV 다운로드를 이용해 주세요.");
+            } finally {
+                pushBtn.disabled = false;
+                pushBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 text-emerald-400"></i><span>현재 대피 현황 및 협력사 명단을 구글 시트(대피결과보고)로 즉시 전송</span>';
+                lucide.createIcons();
             }
         }
 
